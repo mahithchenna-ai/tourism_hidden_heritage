@@ -110,24 +110,3 @@ This project expects Node 20 (LTS). Recommended:
    rm -rf node_modules package-lock.json yarn.lock
    npm install
    npm run start
-
-## Local setup (recommended)
-
-This project expects Node 20 (LTS). Recommended:
-
-1. Install nvm (if not installed):
-   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
-
-2. In your shell:
-   export NVM_DIR="$HOME/.nvm"
-   [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-
-3. Activate Node 20:
-   nvm install 20
-   nvm use 20
-
-4. From frontend folder:
-   cd frontend
-   rm -rf node_modules package-lock.json yarn.lock
-   npm install
-   npm run start

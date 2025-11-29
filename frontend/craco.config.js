@@ -1,4 +1,3 @@
-// craco.config.js
 const path = require("path");
 require("dotenv").config();
 
@@ -14,8 +13,14 @@ let babelMetadataPlugin;
 let setupDevServer;
 
 if (config.enableVisualEdits) {
-  babelMetadataPlugin = require("./plugins/visual-edits/babel-metadata-plugin");
-  setupDevServer = require("./plugins/visual-edits/dev-server-setup");
+  try {
+    babelMetadataPlugin = require("./plugins/visual-edits/babel-metadata-plugin");
+    setupDevServer = require("./plugins/visual-edits/dev-server-setup");
+  } catch (err) {
+    console.warn("Visual edits plugin not found or failed to load:", err.message || err);
+    babelMetadataPlugin = null;
+    setupDevServer = null;
+  }
 }
 
 // Conditionally load health check modules only if enabled
@@ -24,9 +29,16 @@ let setupHealthEndpoints;
 let healthPluginInstance;
 
 if (config.enableHealthCheck) {
-  WebpackHealthPlugin = require("./plugins/health-check/webpack-health-plugin");
-  setupHealthEndpoints = require("./plugins/health-check/health-endpoints");
-  healthPluginInstance = new WebpackHealthPlugin();
+  try {
+    WebpackHealthPlugin = require("./plugins/health-check/webpack-health-plugin");
+    setupHealthEndpoints = require("./plugins/health-check/health-endpoints");
+    healthPluginInstance = new WebpackHealthPlugin();
+  } catch (err) {
+    console.warn("Health check plugin not found or failed to load:", err.message || err);
+    WebpackHealthPlugin = null;
+    setupHealthEndpoints = null;
+    healthPluginInstance = null;
+  }
 }
 
 const webpackConfig = {
@@ -38,9 +50,9 @@ const webpackConfig = {
 
       // Disable hot reload completely if environment variable is set
       if (config.disableHotReload) {
-        // Remove hot reload related plugins
-        webpackConfig.plugins = webpackConfig.plugins.filter(plugin => {
-          return !(plugin.constructor.name === 'HotModuleReplacementPlugin');
+        // Remove hot reload related plugins if present
+        webpackConfig.plugins = (webpackConfig.plugins || []).filter(plugin => {
+          return !(plugin && plugin.constructor && plugin.constructor.name === 'HotModuleReplacementPlugin');
         });
 
         // Disable watch mode
@@ -65,6 +77,7 @@ const webpackConfig = {
 
       // Add health check plugin to webpack if enabled
       if (config.enableHealthCheck && healthPluginInstance) {
+        webpackConfig.plugins = webpackConfig.plugins || [];
         webpackConfig.plugins.push(healthPluginInstance);
       }
 
@@ -73,19 +86,23 @@ const webpackConfig = {
   },
 };
 
-// Only add babel plugin if visual editing is enabled
-if (config.enableVisualEdits) {
+// Only add babel plugin if visual editing is enabled and plugin loaded
+if (config.enableVisualEdits && babelMetadataPlugin) {
   webpackConfig.babel = {
     plugins: [babelMetadataPlugin],
   };
 }
 
 // Setup dev server with visual edits and/or health check
-if (config.enableVisualEdits || config.enableHealthCheck) {
+if ((config.enableVisualEdits && setupDevServer) || (config.enableHealthCheck && setupHealthEndpoints)) {
   webpackConfig.devServer = (devServerConfig) => {
     // Apply visual edits dev server setup if enabled
     if (config.enableVisualEdits && setupDevServer) {
-      devServerConfig = setupDevServer(devServerConfig);
+      try {
+        devServerConfig = setupDevServer(devServerConfig);
+      } catch (err) {
+        console.warn("visual edits dev server setup failed:", err.message || err);
+      }
     }
 
     // Add health check endpoints if enabled
@@ -98,8 +115,11 @@ if (config.enableVisualEdits || config.enableHealthCheck) {
           middlewares = originalSetupMiddlewares(middlewares, devServer);
         }
 
-        // Setup health endpoints
-        setupHealthEndpoints(devServer, healthPluginInstance);
+        try {
+          setupHealthEndpoints(devServer, healthPluginInstance);
+        } catch (err) {
+          console.warn("setupHealthEndpoints failed:", err.message || err);
+        }
 
         return middlewares;
       };
