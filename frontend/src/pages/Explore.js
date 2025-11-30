@@ -4,24 +4,27 @@ import axios from 'axios';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5001';
+const API = BACKEND_URL + '/api';
+
+// Frontend override for Chambal only
+const regionImageOverrides = {
+  chambal: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1400&q=80"
+};
 
 const Explore = () => {
   const [regions, setRegions] = useState([]);
 
   useEffect(() => {
-    fetchRegions();
+    axios.get(API + '/regions')
+      .then(res => setRegions(res.data || []))
+      .catch(err => console.error('Error fetching regions:', err));
   }, []);
 
-  const fetchRegions = async () => {
-    try {
-      const response = await axios.get(`${API}/regions`);
-      setRegions(response.data);
-    } catch (error) {
-      console.error('Error fetching regions:', error);
-    }
-  };
+  const displayedRegions = regions.map(r => ({
+    ...r,
+    banner_image: regionImageOverrides[r.slug] || r.banner_image
+  }));
 
   return (
     <div data-testid="explore-page">
@@ -42,13 +45,13 @@ const Explore = () => {
         <p className="section-subtitle">Select a region to discover hidden heritage sites</p>
         
         <div className="cards-grid">
-          {regions.map((region) => (
-            <div className="card" key={region.id} data-testid={`explore-region-card-${region.slug}`}>
+          {displayedRegions.map(region => (
+            <div className="card" key={region.id} data-testid={'explore-region-card-' + region.slug}>
               <img src={region.banner_image} alt={region.name} className="card-image" />
               <div className="card-content">
                 <h3 className="card-title">{region.name}</h3>
                 <p className="card-description">{region.short_description}</p>
-                <Link to={`/region/${region.slug}`} className="card-button" data-testid={`explore-region-btn-${region.slug}`}>
+                <Link to={'/region/' + region.slug} className="card-button" data-testid={'explore-region-btn-' + region.slug}>
                   Explore Region
                 </Link>
               </div>

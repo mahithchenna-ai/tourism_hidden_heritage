@@ -48,7 +48,6 @@
                 document.head.appendChild(tailwindScript);
             }
         </script>
-  <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/1/17/Favicon.png" type="image/png">
     </head>
     <body>
         <noscript>You need to enable JavaScript to run this app.</noscript>

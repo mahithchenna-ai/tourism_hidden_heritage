@@ -1,0 +1,41 @@
+import React from "react";
+import Hero from "../components/Hero";
+import About from "../components/About";
+import Gallery from "../components/Gallery";
+import "../components/site.css";
+
+// Using online images for gallery:
+const galleryImages = [
+  {
+    src: "https://upload.wikimedia.org/wikipedia/commons/9/94/Bateshwar_Temple_Complex.jpg",
+    alt: "Bateshwar Temples",
+    caption: "Bateshwar Temples",
+  },
+  {
+    src: "https://upload.wikimedia.org/wikipedia/commons/4/44/thumb/5/52/Ater_Fort%2C_Morena%2C_MP.jpg/640px-Ater_Fort%2C_Morena%2C_MP.jpg",
+    alt: "Ater Fort",
+    caption: "Ater Fort",
+  },
+  {
+    src: "https://upload.wikimedia.org/wikipedia/commons/3/38/Kakanmaha_devi_temple.jpg",
+    alt: "Kakanmath Temple",
+    caption: "Kakanmath Temple",
+  },
+];
+
+export default function Home() {
+  return (
+    <main style={{ marginTop: "80px" }}>
+      {/* Fixed Navbar offset */}
+      <Hero />
+
+      <div style={{ padding: "4rem 1.5rem", maxWidth: "1200px", margin: "0 auto" }}>
+        <About />
+      </div>
+
+      <div style={{ padding: "4rem 1.5rem", maxWidth: "1200px", margin: "0 auto" }}>
+        <Gallery images={galleryImages} />
+      </div>
+    </main>
+  );
+}

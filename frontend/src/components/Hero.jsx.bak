@@ -1,0 +1,38 @@
+import React from "react";
+
+export default function Hero({
+  title = "Discover Hidden Heritage",
+  subtitle = "Local stories, guided trips, and community-first travel experiences.",
+  ctaText = "Explore Trips",
+  ctaHref = "/explore",
+  imageUrl = "https://upload.wikimedia.org/wikipedia/commons/9/94/Bateshwar_group_of_temples_in_Morena_district.jpg",
+}) {
+  // A small set of reliable online images for the treadmill
+  const treadmillImages = [
+    "https://upload.wikimedia.org/wikipedia/commons/9/94/Bateshwar_group_of_temples_in_Morena_district.jpg",
+    "https://upload.wikimedia.org/wikipedia/commons/4/44/Ater_Fort.jpg",
+    "https://upload.wikimedia.org/wikipedia/commons/3/38/Kakanmaha_devi_temple.jpg",
+    "https://upload.wikimedia.org/wikipedia/commons/a/a6/Indian_village_road.jpg"
+  ];
+
+  return (
+    <section className="hero-section">
+      <img className="hero-background" src={imageUrl} alt="Hero" />
+      <div className="hero-overlay"></div>
+
+      <div className="hero-content">
+        <h1 className="hero-title">{title}</h1>
+        <p className="hero-subtitle">{subtitle}</p>
+        <a className="hero-cta" href={ctaHref}>{ctaText}</a>
+      </div>
+
+      <div className="photo-treadmill">
+        <div className="treadmill-track">
+          {treadmillImages.map((src, i) => (
+            <img key={i} className="treadmill-image" src={src} alt={`scroll-${i}`} />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
